@@ -2,3 +2,4 @@ settings.py
 DS_STORE
 *.csv
 *.json
+__pychace__
