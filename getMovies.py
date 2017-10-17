@@ -65,9 +65,7 @@ def get_movies_from_y0_yf(year_init, year_end, conn):
 		movie_ids.append(get_movies_from_year(year, conn, API_KEY))
 	#print(movie_ids)
 	print((movie_ids))
-	with open('movie_ids.json', 'wb') as outfile:
-		json.dumps(movie_ids, outfile)
-
+	
 	with open("out.csv","w") as f:
 		wr = csv.writer(f,delimiter="\n")
 		wr.writerow(movie_ids)
