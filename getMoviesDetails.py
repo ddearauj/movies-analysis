@@ -73,7 +73,8 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 def get_details_only_from_ids(ids, conn, movie_detais_headers):
 
 	details = pd.DataFrame()
-	for movie_id in ids:
+	length = len(ids)
+	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
 		movie_data = get_json(conn, url)
@@ -85,6 +86,7 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 				time.sleep(10)
 				movie_data = get_json(conn, url)
 				details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
+		print("%s of %s ids" % (idx, length))
 
 	details.to_csv('details.csv')
 
