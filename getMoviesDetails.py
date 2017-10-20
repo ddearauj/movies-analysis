@@ -87,6 +87,9 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 				time.sleep(10)
 				movie_data = get_json(conn, url)
 				details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
+			if e == TimeoutError:
+				details.to_csv('details_%s_TimeoutError.csv' % idx)
+
 		print("%s of %s ids" % (idx, length))
 		if (idx % 10000 == 0):
 			details.to_csv('details_%s.csv' % idx)
