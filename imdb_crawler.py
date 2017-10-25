@@ -20,11 +20,18 @@ def get_soup(base_url, title_id):
 	soup = BeautifulSoup(urlopen(req), "lxml")
 	return soup
 
-def get_rating(soup):
+def get_MPAA_rating(soup):
 	storyline = soup.find("div", {"id" : "titleStoryLine"})
 	rating = storyline.find("span", {"itemprop" : "contentRating"})
 	print(rating)
 	print(rating.text)
 
+def get_rating(soup):
+	rating = soup.find("div", {"class" : "imdbRating"})
+	rating_value = rating.find("span", {"itemprop" : "ratingValue"}).text
+	rating_count  = rating.find("span", {"itemprop" : "ratingCount"}).text
+	return rating_value, rating_count
 
-get_rating(get_soup(base_url, title_id))
+
+
+print(get_rating(get_soup(base_url, title_id)))
