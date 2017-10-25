@@ -16,6 +16,7 @@ def get_ids_appended():
 	print(ids[:5])
 
 	print(len(pd.Series(details_ids)[pd.Series(details_ids).duplicated()].values))
+	print(len(pd.Series(ids)[pd.Series(ids).duplicated()].values))
 
 	main_list = np.setdiff1d(ids, details_ids)
 	print(len(main_list))
