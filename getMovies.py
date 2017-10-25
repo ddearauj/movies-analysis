@@ -15,11 +15,14 @@ def get_json(conn, url):
 	return(json.loads(data.decode("utf-8")))
 
 def append_movies_from_payload(payload, ids):
-	for mydictionary in payload['results']:
-		for key in mydictionary:
-			#print ("key: %s , value: %s" % (key, mydictionary[key]))
-			if key == "id":
-				ids.append(mydictionary[key])
+	if (payload['status_code'] == 25 ):
+		print("not appending!")
+	else:
+		for mydictionary in payload['results']:
+			for key in mydictionary:
+				#print ("key: %s , value: %s" % (key, mydictionary[key]))
+				if key == "id":
+					ids.append(mydictionary[key])
 
 def get_movies_from_year(year, conn, api_key):
 	# get number of pages
@@ -36,19 +39,13 @@ def get_movies_from_year(year, conn, api_key):
 		url = get_url(year, i, api_key)
 		d = get_json(conn, url)
 
-
-		# for key in d:
-		# 	print ("key: %s" % (key))
-
-		try:
-			append_movies_from_payload(d, ids)
-		except Exception as e:
-			print(d['status_code'])
-			if (d['status_code'] == 25):
+		if ('status_code' in d):
 				#limit of 40 requests per 10 seconds reached!
 				time.sleep(10)
 				d = get_json(conn, url)
 				append_movies_from_payload(d, ids)
+		else:
+			append_movies_from_payload(d, ids)
 
 
 	print(len(ids))
@@ -66,7 +63,7 @@ def get_movies_from_y0_yf(year_init, year_end, conn):
 	#print(movie_ids)
 	print((movie_ids))
 	
-	with open("out.csv","w") as f:
+	with open("data/out_v2.csv","w") as f:
 		wr = csv.writer(f,delimiter="\n")
 		wr.writerow(movie_ids)
 

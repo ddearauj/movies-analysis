@@ -18,7 +18,7 @@ def get_json(conn, url):
 
 def get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id):
 	df = json_normalize(movie_data)
-	print(df)
+	#print(df)
 	details = details.append(df[movie_detais_headers])
 
 	for movie_genre in df['genres'][0]:
@@ -26,12 +26,12 @@ def get_data_from_payload(movie_data, details, prod_companies, prod_countries, g
 		genres = genres.append(movie_genre, ignore_index=True)
 
 	for countries in df['production_countries'][0]:
-		print(countries)
+		#print(countries)
 		countries.update({'movie_id': movie_id})
 		prod_countries = prod_countries.append(countries, ignore_index=True)
 
 	for companies in df['production_companies'][0]:
-		print(companies)
+		#print(companies)
 		companies.update({'movie_id': movie_id})
 		prod_companies = prod_companies.append(companies, ignore_index=True)
 
@@ -49,19 +49,23 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 	prod_companies = pd.DataFrame()
 	prod_countries = pd.DataFrame()
 	genres = pd.DataFrame()
+	length = len(ids)
 
-	for movie_id in ids:
+	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
 		movie_data = get_json(conn, url)
-		try:
+
+		if ('status_code' in movie_data):
+			#limit of 40 requests per 10 seconds reached!
+			time.sleep(10)
+			movie_data = get_json(conn, url)
 			details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
-		except Exception as e:
-			if (movie_data['status_code'] == 25):
-				#limit of 40 requests per 10 seconds reached!
-				time.sleep(10)
-				movie_data = get_json(conn, url)
-				details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
+		else:
+			details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
+
+		print("%s of %s ids" % (idx, length))
+
 	print(genres.head(5))
 
 	details.to_csv('details.csv')
@@ -77,21 +81,15 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
-		try:
+		if ('status_code' in movie_data):
+			#limit of 40 requests per 10 seconds reached!
+			print('sleeping')
+			time.sleep(10)
 			movie_data = get_json(conn, url)
-		except Exception as e:
-			details.to_csv('details_%s_Error.csv' % idx)
-			break
-
-		try:
 			details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
-		except Exception as e:
-			if (movie_data['status_code'] == 25):
-				#limit of 40 requests per 10 seconds reached!
-				print('sleeping')
-				time.sleep(10)
-				movie_data = get_json(conn, url)
-				details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
+
+		else:
+			details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)			
 
 		print("%s of %s ids" % (idx, length))
 		if (idx % 10000 == 0):
@@ -110,7 +108,7 @@ def main():
 
 	conn = http.client.HTTPSConnection("api.themoviedb.org")
 	#get_details_from_ids(ids, conn, movie_detais_headers)
-	get_details_only_from_ids(ids, conn, movie_detais_headers)
+	get_details_from_ids(ids, conn, movie_detais_headers)
 
 
 
