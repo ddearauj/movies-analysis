@@ -1,4 +1,4 @@
 settings.py
 DS_STORE
 *.json
-__pychace__
+__pycache__
