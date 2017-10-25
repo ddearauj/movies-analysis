@@ -11,7 +11,7 @@ def get_soup(base_url, title_id):
 
 	req = Request(
 		url, 
-		data=data, 
+		data=None, 
 		headers={
 			'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
 		}
@@ -24,6 +24,7 @@ def get_rating(soup):
 	storyline = soup.find("div", {"id" : "titleStoryLine"})
 	rating = storyline.find("span", {"itemprop" : "contentRating"})
 	print(rating)
+	print(rating.text)
 
 
 get_rating(get_soup(base_url, title_id))
