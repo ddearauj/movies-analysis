@@ -77,22 +77,30 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
-		movie_data = get_json(conn, url)
+		try:
+			movie_data = get_json(conn, url)
+		except Exception as e:
+			details.to_csv('details_%s_Error.csv' % idx)
+			break
+
 		try:
 			details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
 		except Exception as e:
 			if (movie_data['status_code'] == 25):
 				#limit of 40 requests per 10 seconds reached!
+				print('sleeping')
 				time.sleep(10)
 				movie_data = get_json(conn, url)
 				details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
-		print("%s of %s ids" % (idx, length))
 
-	details.to_csv('details.csv')
+		print("%s of %s ids" % (idx, length))
+		if (idx % 10000 == 0):
+			details.to_csv('./data/details/details_%s.csv' % idx)
+			details = pd.DataFrame()
 
 
 def main():
-	with open('out.csv', 'r') as f:
+	with open('data/out.csv', 'r') as f:
 		reader = csv.reader(f, skipinitialspace=True, delimiter=',')
 		ids_list = list(reader)
 
