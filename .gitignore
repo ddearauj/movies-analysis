@@ -2,3 +2,4 @@ settings.py
 .DS_STORE
 *.json
 __pycache__
+movie_credits_df.csv
