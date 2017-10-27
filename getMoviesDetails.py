@@ -68,10 +68,10 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 
 	print(genres.head(5))
 
-	details.to_csv('details.csv')
-	genres.to_csv('genres.csv')
-	prod_companies.to_csv("prod_companies.csv")
-	prod_countries.to_csv("prod_countries.csv")
+	details.to_csv('data/v2/details.csv')
+	genres.to_csv('data/v2/genres.csv')
+	prod_companies.to_csv("data/v2/prod_companies.csv")
+	prod_countries.to_csv("data/v2/prod_countries.csv")
 
 
 def get_details_only_from_ids(ids, conn, movie_detais_headers):
@@ -81,6 +81,8 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
+		movie_data = get_json(conn, url)
+
 		if ('status_code' in movie_data):
 			#limit of 40 requests per 10 seconds reached!
 			print('sleeping')
