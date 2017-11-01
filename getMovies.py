@@ -12,6 +12,7 @@ def get_json(conn, url):
 	conn.request("GET", url, payload)
 	res = conn.getresponse()
 	data = res.read()
+	header = res.getheader("Retry-After")
 	return(json.loads(data.decode("utf-8")))
 
 def append_movies_from_payload(payload, ids):
@@ -27,7 +28,7 @@ def append_movies_from_payload(payload, ids):
 def get_movies_from_year(year, conn, api_key):
 	# get number of pages
 	url = get_url(year, 1, api_key)
-	d = get_json(conn, url)
+	d, header = get_json(conn, url)
 	total_pages = (d['total_pages'])
 
 	# get movies ids
@@ -37,12 +38,12 @@ def get_movies_from_year(year, conn, api_key):
 	for i in range(2, total_pages + 1):
 		print("page: %s " % i)
 		url = get_url(year, i, api_key)
-		d = get_json(conn, url)
+		d, header = get_json(conn, url)
 
 		if ('status_code' in d):
 				#limit of 40 requests per 10 seconds reached!
-				time.sleep(10)
-				d = get_json(conn, url)
+				time.sleep(header)
+				d, header = get_json(conn, url)
 				append_movies_from_payload(d, ids)
 		else:
 			append_movies_from_payload(d, ids)
