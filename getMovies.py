@@ -63,13 +63,14 @@ def get_movies_from_y0_yf(year_init, year_end, conn):
 	#print(movie_ids)
 	print((movie_ids))
 	
-	with open("data/out_v2.csv","w") as f:
+	with open("data/us/out.csv","w") as f:
 		wr = csv.writer(f,delimiter="\n")
 		wr.writerow(movie_ids)
 
 def main():
 	conn = http.client.HTTPSConnection("api.themoviedb.org")
 	get_movies_from_y0_yf(2000, 2016, conn)
+	# [Finished in 2682.2s]
 
 
 if __name__ == "__main__":
