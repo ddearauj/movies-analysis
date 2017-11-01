@@ -12,7 +12,7 @@ def get_json(conn, url):
 	conn.request("GET", url, payload)
 	res = conn.getresponse()
 	data = res.read()
-	header = res.getHeader('Retry-After')
+	header = res.getheader('Retry-After')
 	return(json.loads(data.decode("utf-8")), header)
 
 def append_movies_from_payload(payload, ids):

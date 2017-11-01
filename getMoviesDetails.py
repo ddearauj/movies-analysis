@@ -17,6 +17,7 @@ def get_json(conn, url):
 	return(json.loads(data.decode("utf-8")))
 
 def get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id):
+	""" since the movie_data has JSON files in their rows, we break them into seperate DataFrames """
 	df = json_normalize(movie_data)
 	#print(df)
 	print(details.head())
@@ -37,12 +38,6 @@ def get_data_from_payload(movie_data, details, prod_companies, prod_countries, g
 		prod_companies = prod_companies.append(companies, ignore_index=True)
 
 	return details, prod_companies, prod_countries, genres
-
-def get_details_from_payload(movie_data, details, movie_detais_headers, movie_id):
-	df = json_normalize(movie_data)
-	details = details.append(df[movie_detais_headers])
-
-	return details
 
 def get_details_from_ids(ids, conn, movie_detais_headers):
 
@@ -73,32 +68,6 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 	genres.to_csv('data/us/genres.csv')
 	prod_companies.to_csv("data/us/prod_companies.csv")
 	prod_countries.to_csv("data/us/prod_countries.csv")
-
-
-def get_details_only_from_ids(ids, conn, movie_detais_headers):
-
-	details = pd.DataFrame()
-	length = len(ids)
-	for idx, movie_id in enumerate(ids):
-		#get the data
-		url = get_url(movie_id, API_KEY)
-		movie_data = get_json(conn, url)
-
-		if ('status_code' in movie_data):
-			#limit of 40 requests per 10 seconds reached!
-			print('sleeping')
-			time.sleep(10)
-			movie_data = get_json(conn, url)
-			details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)
-
-		else:
-			details = get_details_from_payload(movie_data, details, movie_detais_headers, movie_id)			
-
-		print("%s of %s ids" % (idx, length))
-		if (idx % 10000 == 0):
-			details.to_csv('./data_/us/details_%s.csv' % idx)
-	details.to_csv('./data/us/details.csv')
-
 
 def main():
 	with open('data/out_us.csv', 'r') as f:
