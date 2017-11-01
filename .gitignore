@@ -3,3 +3,4 @@ settings.py
 *.json
 __pycache__
 movie_credits_df.csv
+.ipynb_checkpoints

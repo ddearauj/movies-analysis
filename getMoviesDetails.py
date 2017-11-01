@@ -19,6 +19,7 @@ def get_json(conn, url):
 def get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id):
 	df = json_normalize(movie_data)
 	#print(df)
+	print(details.head())
 	details = details.append(df[movie_detais_headers])
 
 	for movie_genre in df['genres'][0]:
@@ -68,10 +69,10 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 
 	print(genres.head(5))
 
-	details.to_csv('data/v2/details.csv')
-	genres.to_csv('data/v2/genres.csv')
-	prod_companies.to_csv("data/v2/prod_companies.csv")
-	prod_countries.to_csv("data/v2/prod_countries.csv")
+	details.to_csv('data/us/details.csv')
+	genres.to_csv('data/us/genres.csv')
+	prod_companies.to_csv("data/us/prod_companies.csv")
+	prod_countries.to_csv("data/us/prod_countries.csv")
 
 
 def get_details_only_from_ids(ids, conn, movie_detais_headers):
@@ -95,16 +96,18 @@ def get_details_only_from_ids(ids, conn, movie_detais_headers):
 
 		print("%s of %s ids" % (idx, length))
 		if (idx % 10000 == 0):
-			details.to_csv('./data/details/details_%s.csv' % idx)
-			details = pd.DataFrame()
+			details.to_csv('./data_/us/details_%s.csv' % idx)
+	details.to_csv('./data/us/details.csv')
 
 
 def main():
-	with open('data/out.csv', 'r') as f:
+	with open('data/out_us.csv', 'r') as f:
 		reader = csv.reader(f, skipinitialspace=True, delimiter=',')
 		ids_list = list(reader)
 
 	ids = [item for sublist in ids_list for item in sublist]
+	print(ids)
+
 
 	movie_detais_headers = ['budget', 'id', 'imdb_id', 'original_language', 'original_title', 'release_date', 'revenue', 'runtime', 'vote_average', 'vote_count']
 
