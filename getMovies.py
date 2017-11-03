@@ -41,8 +41,6 @@ def get_movies_from_year(year, conn, api_key):
 
 		if ('status_code' in d):
 				#limit of 40 requests per 10 seconds reached!
-				if header < 1:
-					header = 1
 				print(header)
 				time.sleep(header + 1)
 				d, header = get_json(conn, url)

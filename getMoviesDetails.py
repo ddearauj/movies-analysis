@@ -23,7 +23,7 @@ def get_data_from_payload(movie_data, details, prod_companies, prod_countries, g
 	""" since the movie_data has JSON files in their rows, we break them into seperate DataFrames """
 	df = json_normalize(movie_data)
 	#print(df)
-	print(details.head())
+	#print(details.head())
 	details = details.append(df[movie_detais_headers])
 
 	for movie_genre in df['genres'][0]:
@@ -54,10 +54,12 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 		#get the data
 		url = get_url(movie_id, API_KEY)
 		movie_data, header = get_json(conn, url)
+		#print(movie_data)
 
 		if ('status_code' in movie_data):
 			#limit of 40 requests per 10 seconds reached!
-			time.sleep(header)
+			print(header)
+			time.sleep(header + 1)
 			movie_data, header = get_json(conn, url)
 			details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
 		else:
@@ -73,13 +75,12 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 	prod_countries.to_csv("data/us/prod_countries.csv")
 
 def main():
-	with open('data/out_en.csv', 'r') as f:
+	with open('data/us/out.csv', 'r') as f:
 		reader = csv.reader(f, skipinitialspace=True, delimiter=',')
 		ids_list = list(reader)
 
 	ids = [item for sublist in ids_list for item in sublist]
 	print(len(ids))
-
 
 	movie_detais_headers = ['budget', 'id', 'imdb_id', 'original_language', 'original_title', 'release_date', 'revenue', 'runtime', 'vote_average', 'vote_count']
 
