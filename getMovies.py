@@ -5,7 +5,7 @@ import time
 import  csv
 
 def get_url(year, page, api_key):
-	return("/3/discover/movie?primary_release_year=" + str(year) + "&page=" + str(page) + "&include_video=false&include_adult=false&sort_by=popularity.desc&language=en-US&api_key=" + str(api_key))
+	return("/3/discover/movie?primary_release_year=" + str(year) + "&page=" + str(page) + "&include_video=false&include_adult=false&sort_by=popularity.desc&region=US&api_key=" + str(api_key))
 
 def get_json(conn, url):
 	payload = "{}"
@@ -13,17 +13,16 @@ def get_json(conn, url):
 	res = conn.getresponse()
 	data = res.read()
 	header = res.getheader("Retry-After")
-	return(json.loads(data.decode("utf-8")))
+	if header:
+		header = int(header)
+	return(json.loads(data.decode("utf-8")), header)
 
 def append_movies_from_payload(payload, ids):
-	if (payload['status_code'] == 25 ):
-		print("not appending!")
-	else:
-		for mydictionary in payload['results']:
-			for key in mydictionary:
-				#print ("key: %s , value: %s" % (key, mydictionary[key]))
-				if key == "id":
-					ids.append(mydictionary[key])
+	for mydictionary in payload['results']:
+		for key in mydictionary:
+			#print ("key: %s , value: %s" % (key, mydictionary[key]))
+			if key == "id":
+				ids.append(mydictionary[key])
 
 def get_movies_from_year(year, conn, api_key):
 	# get number of pages
@@ -42,7 +41,8 @@ def get_movies_from_year(year, conn, api_key):
 
 		if ('status_code' in d):
 				#limit of 40 requests per 10 seconds reached!
-				time.sleep(header)
+				print(header)
+				time.sleep(header + 1)
 				d, header = get_json(conn, url)
 				append_movies_from_payload(d, ids)
 		else:
