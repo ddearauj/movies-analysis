@@ -14,7 +14,10 @@ def get_json(conn, url):
 	conn.request("GET", url, payload)
 	res = conn.getresponse()
 	data = res.read()
-	return(json.loads(data.decode("utf-8")))
+	header = res.getheader("Retry-After")
+	if header:
+		header = int(header)
+	return(json.loads(data.decode("utf-8")), header)
 
 def get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id):
 	""" since the movie_data has JSON files in their rows, we break them into seperate DataFrames """
@@ -50,19 +53,19 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 	for idx, movie_id in enumerate(ids):
 		#get the data
 		url = get_url(movie_id, API_KEY)
-		movie_data = get_json(conn, url)
+		movie_data, header = get_json(conn, url)
 
 		if ('status_code' in movie_data):
 			#limit of 40 requests per 10 seconds reached!
-			time.sleep(10)
-			movie_data = get_json(conn, url)
+			time.sleep(header)
+			movie_data, header = get_json(conn, url)
 			details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
 		else:
 			details, prod_companies, prod_countries, genres = get_data_from_payload(movie_data, details, prod_companies, prod_countries, genres, movie_detais_headers, movie_id)
 
 		print("%s of %s ids" % (idx, length))
 
-	print(genres.head(5))
+	#print(genres.head(5))
 
 	details.to_csv('data/us/details.csv')
 	genres.to_csv('data/us/genres.csv')
@@ -70,12 +73,12 @@ def get_details_from_ids(ids, conn, movie_detais_headers):
 	prod_countries.to_csv("data/us/prod_countries.csv")
 
 def main():
-	with open('data/out_us.csv', 'r') as f:
+	with open('data/out_en.csv', 'r') as f:
 		reader = csv.reader(f, skipinitialspace=True, delimiter=',')
 		ids_list = list(reader)
 
 	ids = [item for sublist in ids_list for item in sublist]
-	print(ids)
+	print(len(ids))
 
 
 	movie_detais_headers = ['budget', 'id', 'imdb_id', 'original_language', 'original_title', 'release_date', 'revenue', 'runtime', 'vote_average', 'vote_count']
