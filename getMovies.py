@@ -71,6 +71,7 @@ def get_movies_from_y0_yf(year_init, year_end, conn):
 def main():
 	conn = http.client.HTTPSConnection("api.themoviedb.org")
 	get_movies_from_y0_yf(2000, 2016, conn)
+	# [Finished in 2682.2s]
 
 
 if __name__ == "__main__":
